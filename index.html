@@ -144,7 +144,8 @@ button{font:inherit;cursor:pointer}
 /* ---- MÓVIL DEL NIÑO ---- */
 #pl{position:fixed;inset:0;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px);display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
 .ph{padding:10px 14px;background:#0008;display:flex;justify-content:space-between;align-items:center;gap:8px;font-weight:900}
-.pb{flex:1;overflow:auto;padding:12px 14px;display:flex;flex-direction:column;gap:12px}
+.pf{flex:none;padding:8px 14px 10px;background:#0b1030;border-top:4px solid #000;box-shadow:0 -4px 12px #0008}
+.pb{flex:1 1 0;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y;padding:12px 14px 24px;display:flex;flex-direction:column;gap:12px}
 .mini{height:10px;background:#222;border-radius:6px;overflow:hidden;border:2px solid #000}
 .mini i{display:block;height:100%;background:linear-gradient(90deg,var(--g),#b6ff5e)}
 input[type=text]{font:inherit;font-size:22px;padding:14px;border-radius:14px;border:4px solid #000;width:100%;color:#111}
@@ -347,20 +348,90 @@ function goFull(){
 
 /* ---------- dibujos ---------- */
 function villainSVG(v,mad,hit){
-  const acc={
-    crown:`<path d="M70,15 L85,-12 L100,10 L115,-12 L130,15Z" fill="#ffd400" stroke="#000" stroke-width="5"/>`,
-    antenna:`<line x1="100" y1="22" x2="100" y2="-12" stroke="#000" stroke-width="6"/><circle cx="100" cy="-14" r="9" fill="#ff3b30" stroke="#000" stroke-width="4"/><rect x="62" y="55" width="12" height="30" rx="4" fill="#556" stroke="#000" stroke-width="4"/><rect x="126" y="55" width="12" height="30" rx="4" fill="#556" stroke="#000" stroke-width="4"/>`,
-    ice:`<path d="M60,28 L68,-14 L82,20 L100,-22 L118,20 L132,-14 L140,28Z" fill="#e8f9ff" stroke="#2f7dd1" stroke-width="5"/>`,
-    horns:`<path d="M62,34 Q40,-6 70,-14 Q58,10 76,26Z" fill="#7a0f2a" stroke="#000" stroke-width="5"/><path d="M138,34 Q160,-6 130,-14 Q142,10 124,26Z" fill="#7a0f2a" stroke="#000" stroke-width="5"/>`
-  }[v.acc]||"";
-  return `<svg class="villain ${hit?"hit":""}" viewBox="-20 -30 240 300"><path d="M20 250 L60 110 L140 110 L180 250Z" fill="${v.cape}" stroke="#000" stroke-width="6"/>
-  <path d="M60 110 Q100 150 140 110 L150 60 L50 60Z" fill="#241040" stroke="#000" stroke-width="6"/>
-  <circle cx="100" cy="70" r="50" fill="${v.skin}" stroke="#000" stroke-width="6"/>${acc}
-  <path d="M64 56 L92 70 M136 56 L108 70" stroke="#000" stroke-width="8" stroke-linecap="round"/>
-  <circle cx="80" cy="75" r="9" fill="#fff" stroke="#000" stroke-width="4"/><circle cx="120" cy="75" r="9" fill="#fff" stroke="#000" stroke-width="4"/>
-  <circle cx="82" cy="77" r="4" fill="${mad?"#f00":"#000"}"/><circle cx="118" cy="77" r="4" fill="${mad?"#f00":"#000"}"/>
-  <path d="M75 100 Q100 ${mad?88:120} 125 100" fill="none" stroke="#000" stroke-width="6" stroke-linecap="round"/>
-  <rect x="70" y="170" width="60" height="50" rx="8" fill="#ff3b30" stroke="#000" stroke-width="5"/><text x="100" y="205" text-anchor="middle" font-size="26" font-family="Impact" fill="#fff">${esc(v.n.split(" ").map(w=>w[0]).join("").slice(0,3))}</text></svg>`;
+  const k=v.acc,ey=mad?"#ff1a1a":"#111",S=(w)=>`stroke="#000" stroke-width="${w||5}" stroke-linejoin="round" stroke-linecap="round"`;
+  const defs=`<defs><radialGradient id="sk${k}" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".45" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".35"/></radialGradient>
+  <linearGradient id="cp${k}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${v.cape}"/><stop offset="1" stop-color="#000" stop-opacity=".75"/></linearGradient>
+  <linearGradient id="mt${k}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e4ebf2"/><stop offset=".5" stop-color="#8f9eb0"/><stop offset="1" stop-color="#4b5866"/></linearGradient>
+  <linearGradient id="ic${k}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f4fdff"/><stop offset="1" stop-color="#6ec6ff"/></linearGradient>
+  <filter id="gw${k}" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="3.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>`;
+  const shade=(cx,cy,r)=>`<circle cx="${cx}" cy="${cy}" r="${r}" fill="url(#sk${k})"/>`;
+  let body="";
+  if(k==="crown"){ /* Doctor Calzonazos: científico loco con bata, calzoncillos gigantes y corona */
+    body=`<path d="M10 255 Q0 150 55 105 L145 105 Q200 150 190 255 L100 232Z" fill="url(#cp${k})" ${S(6)}/>
+    <path d="M22 240 Q18 160 62 118 L100 232Z" fill="#a0307a" opacity=".55"/>
+    <rect x="62" y="205" width="76" height="52" rx="10" fill="#ffe14a" ${S()}/><path d="M62 222 H138" stroke="#000" stroke-width="3"/><text x="100" y="248" text-anchor="middle" font-size="26">💛</text><circle cx="78" cy="236" r="4" fill="#ff5a5a"/><circle cx="122" cy="236" r="4" fill="#ff5a5a"/>
+    <path d="M55 110 Q50 190 66 212 L134 212 Q150 190 145 110Z" fill="#f4f8ff" ${S(6)}/><path d="M100 112 V210" stroke="#000" stroke-width="3"/>
+    <path d="M62 112 L100 150 L84 112Z M138 112 L100 150 L116 112Z" fill="#d3deef" ${S(4)}/>
+    <circle cx="92" cy="170" r="4" fill="#556"/><circle cx="92" cy="190" r="4" fill="#556"/>
+    <rect x="108" y="158" width="24" height="30" rx="4" fill="#fff" ${S(3)}/><rect x="112" y="150" width="5" height="22" rx="2" fill="#3cf" ${S(2)}/><rect x="121" y="152" width="5" height="20" rx="2" fill="#f5a" ${S(2)}/>
+    <path d="M50 120 Q20 160 30 190" fill="none" ${S(18)} stroke="#f4f8ff"/><path d="M50 120 Q20 160 30 190" fill="none" stroke="#f4f8ff" stroke-width="12" stroke-linecap="round"/>
+    <path d="M28 170 L12 142 L26 136 L40 168Z" fill="#cfd8e8" ${S(3)}/><circle cx="16" cy="136" r="14" fill="${v.skin}" ${S(4)}/>
+    <g transform="translate(176 150)"><path d="M-8 -20 H8 V-4 L22 20 Q24 28 14 28 H-14 Q-24 28 -22 20 L-8 -4Z" fill="#c9f7ff" fill-opacity=".8" ${S(4)}/><path d="M-18 14 L18 14 L22 20 Q24 28 14 28 H-14 Q-24 28 -22 20Z" fill="#7dff4a"/><circle cx="-4" cy="6" r="3" fill="#9f6"/><circle cx="5" cy="-2" r="2" fill="#9f6"/></g>
+    <path d="M150 120 Q182 150 176 168" fill="none" ${S(18)} stroke="#000"/><path d="M150 120 Q182 150 176 168" fill="none" stroke="#f4f8ff" stroke-width="12" stroke-linecap="round"/><circle cx="176" cy="170" r="12" fill="${v.skin}" ${S(4)}/>
+    <path d="M52 62 Q40 20 70 22 Q76 6 100 14 Q124 6 130 22 Q160 20 148 62Z" fill="#7b2cff" ${S(5)}/>
+    <circle cx="100" cy="72" r="52" fill="${v.skin}" ${S(6)}/>${shade(100,72,52)}
+    <rect x="62" y="30" width="76" height="14" rx="7" fill="#445" ${S(4)}/><circle cx="78" cy="36" r="9" fill="#9fe" ${S(3)}/><circle cx="122" cy="36" r="9" fill="#9fe" ${S(3)}/>
+    <path d="M56 58 L90 72 M144 58 L110 72" stroke="#3a1a5a" stroke-width="10" stroke-linecap="round"/>
+    <circle cx="78" cy="80" r="14" fill="#fff" ${S(4)}/><circle cx="122" cy="80" r="14" fill="#fff" ${S(4)}/><circle cx="80" cy="82" r="6" fill="${ey}"/><circle cx="120" cy="82" r="6" fill="${ey}"/><circle cx="82" cy="79" r="2" fill="#fff"/><circle cx="122" cy="79" r="2" fill="#fff"/>
+    <path d="M96 88 Q100 98 104 88" fill="none" stroke="#000" stroke-width="3"/>
+    <path d="M66 102 Q100 ${mad?96:134} 134 102 Q100 112 66 102Z" fill="#300" ${S(5)}/><path d="M76 104 L80 112 L86 105 M94 108 L98 117 L104 108 M114 105 L118 112 L124 104" fill="#fff" stroke="#000" stroke-width="2"/>
+    <path d="M64 24 L74 -6 L88 14 L100 -16 L112 14 L126 -6 L136 24Z" fill="#ffd400" ${S(5)}/><circle cx="100" cy="2" r="6" fill="#ff3b30" ${S(3)}/><circle cx="76" cy="10" r="4" fill="#3cf"/><circle cx="124" cy="10" r="4" fill="#3cf"/>`;
+  }else if(k==="antenna"){ /* General Tornillo: robot militar */
+    body=`<path d="M8 255 Q0 160 50 112 L150 112 Q200 160 192 255 L100 236Z" fill="url(#cp${k})" ${S(6)}/>
+    <path d="M48 112 H152 L162 232 H38Z" fill="url(#mt${k})" ${S(6)}/><path d="M60 126 H140 V176 H60Z" fill="#3b4652" ${S(4)}/>
+    <circle cx="100" cy="150" r="20" fill="#222" ${S(4)}/><g transform="translate(100 150)" ${mad?'':''}><path d="M-3 -18 H3 L5 -12 L11 -14 L15 -8 L10 -4 L12 3 L18 5 L17 12 L11 12 L8 18 L2 16 L-3 18 L-8 14 L-14 14 L-17 8 L-12 3 L-14 -3 L-9 -8Z" fill="#ffb347" ${S(2)}/><circle r="6" fill="#222"/></g>
+    <circle cx="68" cy="188" r="7" fill="#ffd400" ${S(3)}/><circle cx="90" cy="192" r="7" fill="#e33" ${S(3)}/><circle cx="112" cy="188" r="7" fill="#3c3" ${S(3)}/><path d="M60 208 H140" stroke="#222" stroke-width="5"/><circle cx="52" cy="124" r="4" fill="#ccd"/><circle cx="148" cy="124" r="4" fill="#ccd"/>
+    <rect x="14" y="116" width="36" height="22" rx="8" fill="url(#mt${k})" ${S(5)}/><rect x="150" y="116" width="36" height="22" rx="8" fill="url(#mt${k})" ${S(5)}/>
+    <path d="M26 136 L10 190" stroke="#000" stroke-width="22" stroke-linecap="round"/><path d="M26 136 L10 190" stroke="url(#mt${k})" stroke-width="15" stroke-linecap="round"/><path d="M10 190 L-6 206 M10 190 L8 212 M10 190 L24 208" stroke="#000" stroke-width="7" stroke-linecap="round"/>
+    <path d="M174 136 L190 186" stroke="#000" stroke-width="22" stroke-linecap="round"/><path d="M174 136 L190 186" stroke="url(#mt${k})" stroke-width="15" stroke-linecap="round"/><rect x="180" y="176" width="22" height="28" rx="6" fill="#ff3b30" ${S(4)}/>
+    <rect x="60" y="30" width="80" height="84" rx="16" fill="url(#mt${k})" ${S(6)}/>
+    <path d="M52 40 H148 L140 14 H60Z" fill="#37474f" ${S(5)}/><path d="M56 40 H144 V52 H56Z" fill="#1f2b32" ${S(4)}/><path d="M100 18 L104 28 L114 28 L106 34 L109 44 L100 38 L91 44 L94 34 L86 28 L96 28Z" fill="#ffd400" ${S(2)}/>
+    <rect x="68" y="62" width="64" height="26" rx="8" fill="#1a1f26" ${S(4)}/><rect x="72" y="67" width="56" height="16" rx="6" fill="${mad?"#ff2020":"#ff7a2a"}" filter="url(#gw${k})"/><path d="M72 75 H128" stroke="#fff" stroke-width="2" opacity=".7"/>
+    <path d="M70 100 H130" stroke="#222" stroke-width="5"/><path d="M78 96 V106 M90 96 V106 M102 96 V106 M114 96 V106 M126 96 V106" stroke="#222" stroke-width="3"/>
+    <circle cx="70" cy="46" r="3" fill="#ccd"/><circle cx="130" cy="46" r="3" fill="#ccd"/><circle cx="68" cy="106" r="3" fill="#ccd"/><circle cx="132" cy="106" r="3" fill="#ccd"/>
+    <rect x="50" y="62" width="12" height="30" rx="5" fill="#556" ${S(4)}/><rect x="138" y="62" width="12" height="30" rx="5" fill="#556" ${S(4)}/>
+    <line x1="100" y1="14" x2="100" y2="-14" stroke="#000" stroke-width="6"/><circle cx="100" cy="-16" r="9" fill="${mad?"#ff3b30":"#ff9d00"}" ${S(4)} filter="url(#gw${k})"/>`;
+  }else if(k==="ice"){ /* Reina Escarcha */
+    body=`<path d="M0 255 Q0 150 50 108 L150 108 Q200 150 200 255 L100 236Z" fill="url(#cp${k})" ${S(6)}/>
+    <path d="M62 110 Q30 190 14 252 L186 252 Q170 190 138 110Z" fill="url(#ic${k})" ${S(6)}/><path d="M100 120 L84 200 L100 250 L116 200Z" fill="#fff" opacity=".5"/>
+    <path d="M70 150 L100 175 L130 150" fill="none" stroke="#2f7dd1" stroke-width="4"/><g fill="#fff" stroke="#2f7dd1" stroke-width="2"><circle cx="64" cy="210" r="5"/><circle cx="136" cy="214" r="5"/><circle cx="100" cy="226" r="6"/></g>
+    <path d="M62 112 L40 100 L50 126Z M138 112 L160 100 L150 126Z" fill="#fff" ${S(4)} stroke="#2f7dd1"/>
+    <path d="M44 66 Q14 130 30 214 L58 190 L56 100Z" fill="#dff5ff" ${S(5)} stroke="#2f7dd1"/><path d="M156 66 Q186 130 170 214 L142 190 L144 100Z" fill="#dff5ff" ${S(5)} stroke="#2f7dd1"/>
+    <path d="M62 116 Q30 150 34 186" fill="none" stroke="#000" stroke-width="18" stroke-linecap="round"/><path d="M62 116 Q30 150 34 186" fill="none" stroke="#bfe9ff" stroke-width="12" stroke-linecap="round"/><circle cx="34" cy="188" r="11" fill="${v.skin}" ${S(4)}/>
+    <path d="M138 116 Q176 140 176 168" fill="none" stroke="#000" stroke-width="18" stroke-linecap="round"/><path d="M138 116 Q176 140 176 168" fill="none" stroke="#bfe9ff" stroke-width="12" stroke-linecap="round"/><circle cx="176" cy="170" r="11" fill="${v.skin}" ${S(4)}/>
+    <line x1="176" y1="40" x2="176" y2="238" stroke="#000" stroke-width="9" stroke-linecap="round"/><line x1="176" y1="40" x2="176" y2="238" stroke="#9bd8ff" stroke-width="4"/><g transform="translate(176 30)" filter="url(#gw${k})" stroke="#fff" stroke-width="5" stroke-linecap="round"><path d="M0 -24 V24 M-21 -12 L21 12 M-21 12 L21 -12"/></g>
+    <path d="M52 78 Q36 20 100 14 Q164 20 148 78 L148 120 Q100 98 52 120Z" fill="#f4fbff" ${S(5)} stroke="#2f7dd1"/>
+    <ellipse cx="100" cy="74" rx="46" ry="50" fill="${v.skin}" ${S(6)}/>${shade(100,74,48)}
+    <path d="M56 56 Q70 30 100 40 Q130 30 144 56 Q120 46 100 52 Q80 46 56 56Z" fill="#f4fbff" ${S(4)} stroke="#2f7dd1"/>
+    <path d="M66 70 Q78 62 90 72 M134 70 Q122 62 110 72" stroke="#2f7dd1" stroke-width="6" fill="none" stroke-linecap="round"/>
+    <ellipse cx="80" cy="82" rx="10" ry="8" fill="#fff" ${S(3)}/><ellipse cx="120" cy="82" rx="10" ry="8" fill="#fff" ${S(3)}/><circle cx="80" cy="82" r="5" fill="${mad?"#ff3b6b":"#18b4ff"}" filter="url(#gw${k})"/><circle cx="120" cy="82" r="5" fill="${mad?"#ff3b6b":"#18b4ff"}" filter="url(#gw${k})"/>
+    <circle cx="66" cy="98" r="7" fill="#ff9ec0" opacity=".5"/><circle cx="134" cy="98" r="7" fill="#ff9ec0" opacity=".5"/>
+    <path d="M82 104 Q100 ${mad?100:116} 118 104" fill="${mad?"#400":"none"}" ${S(4)}/>
+    <path d="M56 36 L56 4 L72 24 L86 -8 L100 22 L114 -8 L128 24 L144 4 L144 36Z" fill="url(#ic${k})" ${S(5)} stroke="#2f7dd1"/><circle cx="100" cy="14" r="6" fill="#18b4ff" filter="url(#gw${k})"/>`;
+  }else{ /* Rey Tinieblas */
+    body=`<path d="M-10 258 Q-10 120 54 96 L146 96 Q210 120 210 258 L180 240 L162 262 L136 240 L112 264 L88 240 L62 262 L40 240Z" fill="url(#cp${k})" ${S(6)}/>
+    <path d="M10 250 Q10 140 60 112" fill="none" stroke="#7b3cff" stroke-width="5" opacity=".7" filter="url(#gw${k})"/><path d="M190 250 Q190 140 140 112" fill="none" stroke="#7b3cff" stroke-width="5" opacity=".7" filter="url(#gw${k})"/>
+    <path d="M52 104 Q40 190 60 236 L140 236 Q160 190 148 104Z" fill="#150a2b" ${S(6)}/><path d="M100 110 V232" stroke="#7b3cff" stroke-width="3" opacity=".6"/>
+    <g fill="#7b3cff" opacity=".85" filter="url(#gw${k})"><circle cx="76" cy="150" r="4"/><circle cx="124" cy="150" r="4"/><circle cx="100" cy="190" r="5"/></g>
+    <path d="M46 110 Q10 160 22 200" fill="none" stroke="#000" stroke-width="22" stroke-linecap="round"/><path d="M46 110 Q10 160 22 200" fill="none" stroke="#150a2b" stroke-width="15" stroke-linecap="round"/><path d="M22 200 L6 224 M22 200 L22 228 M22 200 L38 224" stroke="#000" stroke-width="8" stroke-linecap="round"/><path d="M22 200 L8 222 M22 200 L22 226 M22 200 L36 222" stroke="${v.skin}" stroke-width="4" stroke-linecap="round"/>
+    <path d="M154 110 Q192 150 178 196" fill="none" stroke="#000" stroke-width="22" stroke-linecap="round"/><path d="M154 110 Q192 150 178 196" fill="none" stroke="#150a2b" stroke-width="15" stroke-linecap="round"/>
+    <g transform="translate(178 190)" filter="url(#gw${k})"><circle r="22" fill="#7b3cff" opacity=".75"/><circle r="12" fill="#e9d8ff"/></g>
+    <path d="M44 120 Q32 40 100 22 Q168 40 156 120 Q100 96 44 120Z" fill="#0d0620" ${S(6)}/>
+    <ellipse cx="100" cy="80" rx="42" ry="46" fill="#0a0418" ${S(5)}/><ellipse cx="100" cy="86" rx="34" ry="34" fill="${v.skin}" opacity=".35"/>
+    <path d="M64 70 L92 82 L76 92Z" fill="${mad?"#ff2a2a":"#d9a3ff"}" filter="url(#gw${k})"/><path d="M136 70 L108 82 L124 92Z" fill="${mad?"#ff2a2a":"#d9a3ff"}" filter="url(#gw${k})"/>
+    <path d="M66 106 Q100 ${mad?100:126} 134 106" fill="none" stroke="#e9d8ff" stroke-width="5" stroke-linecap="round" filter="url(#gw${k})"/><path d="M74 108 L78 118 M88 112 L90 122 M104 112 L106 122 M120 110 L122 118" stroke="#e9d8ff" stroke-width="3"/>
+    <path d="M52 52 Q20 -2 56 -16 Q48 14 72 30Z" fill="#7a0f2a" ${S(5)}/><path d="M148 52 Q180 -2 144 -16 Q152 14 128 30Z" fill="#7a0f2a" ${S(5)}/>
+    <path d="M70 34 L76 8 L90 26 L100 2 L110 26 L124 8 L130 34Z" fill="#4b1a8a" ${S(4)}/><circle cx="100" cy="16" r="5" fill="#e9d8ff" filter="url(#gw${k})"/>`;
+  }
+  const AU={crown:["#9dff4a","#ffe14a"],antenna:["#ff9d00","#6ec6ff"],ice:["#bfefff","#ffffff"],horns:["#b14dff","#ff2a4a"]}[k]||["#fff","#ff0"];
+  const PT={crown:["🫧","✨","🧪"],antenna:["⚙️","⚡","🔩"],ice:["❄️","✨","❄️"],horns:["🔥","🦇","✨"]}[k]||["✨"];
+  const parts=[...Array(9).keys()].map(i=>{const x=-10+i*27+(i%2)*9,d=2.6+(i%4)*.7,y0=230-(i%3)*20;return `<text x="${x}" y="${y0}" font-size="${12+(i%3)*5}" text-anchor="middle" opacity="0"><animate attributeName="y" values="${y0};${y0-190}" dur="${d}s" begin="${(i*.37).toFixed(2)}s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;.95;.95;0" dur="${d}s" begin="${(i*.37).toFixed(2)}s" repeatCount="indefinite"/>${PT[i%PT.length]}</text>`}).join("");
+  const aura=`<defs><radialGradient id="au${k}" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="${AU[0]}" stop-opacity=".75"/><stop offset=".6" stop-color="${AU[1]}" stop-opacity=".22"/><stop offset="1" stop-color="${AU[0]}" stop-opacity="0"/></radialGradient>
+  <filter id="lt${k}"><feComponentTransfer><feFuncR type="linear" slope="1.5" intercept=".03"/><feFuncG type="linear" slope="1.5" intercept=".02"/><feFuncB type="linear" slope="1.5" intercept=".07"/></feComponentTransfer></filter></defs>
+  <ellipse cx="100" cy="130" rx="150" ry="150" fill="url(#au${k})"><animate attributeName="rx" values="140;160;140" dur="2.4s" repeatCount="indefinite"/><animate attributeName="ry" values="140;160;140" dur="2.4s" repeatCount="indefinite"/></ellipse>
+  <ellipse cx="100" cy="262" rx="95" ry="12" fill="#000" opacity=".45"/>`;
+  const rim=k==="horns"?`<g filter="url(#lt${k})">${body}</g><g fill="none" stroke="${AU[1]}" stroke-width="2" opacity=".8" filter="url(#gw${k})"><path d="M60 100 Q40 110 28 150"/><path d="M140 100 Q160 110 172 150"/></g>`:body;
+  return `<svg class="villain ${hit?"hit":""}" viewBox="-60 -50 320 340" overflow="visible">${defs}${aura}${rim}${parts}</svg>`;
 }
 function coverArt(){
   let seed=11;const R=()=>(seed=(seed*9301+49297)%233280)/233280;
@@ -1026,13 +1097,14 @@ function player(){
     if(holdOn){const live=s&&s.phase==="active"&&((s.type==="relay"&&s.turn&&(s.step||0)===holdStep)||s.type==="final");if(live)return;holdOn=false}
     const nsig=v.mi+":"+v.si+":"+(s?s.phase+(s.sub||""):"");if(nsig!==sig){sig=nsig;pick=null;armed=null;kp=[]}
     let b="";
+    let pf="";
     const hdr=`<div class="ph"><span>${esc(v.nick)}</span><span>⭐ ${v.score}</span></div>`;
     if(v.phase==="lobby")b=`<div class="center2"><h2>¡Listo, ${esc(v.nick)}!</h2><div>Mira la tele: pronto empezará la misión.</div>${powersList(v)}</div>`;
     else if(v.phase==="mend")b=`<div class="center2"><h2>🎉 ¡Misión superada!</h2><div class="big" style="font-size:50px">${"⭐".repeat(v.stars[v.stars.length-1]||1)}</div><div>Llevas ${v.score} puntos. ¡Preparaos para la siguiente!</div></div>`;
     else if(v.phase==="win")b=`<div class="center2"><h2>🏆 ¡Ciudad salvada!</h2><div class="big" style="font-size:44px">${v.stars.map(x=>"⭐".repeat(x)).join(" ")}</div><div>Has conseguido ${v.score} puntos para el equipo.</div></div>`;
     else if(!s)b=`<div class="center2"><h2>🦸 Misión ${v.mi+1}</h2><div style="font-size:22px">${esc(v.mt)}</div><div>${esc(v.msg)}</div></div>`;
-    else b=`<div class="small">Misión ${v.mi+1}/${v.mn} · Reto ${v.si}/${v.sn}${s.left!=null?` · ⏱ ${s.left}s`:""}</div>${bar(v)}${v.note?`<div class="note">${esc(v.note)}</div>`:""}${stageHTML(v,s)}${powersBar(v)}`;
-    app.innerHTML=`<div id="pl">${hdr}<div class="pb">${b}</div>${v.paused?`<div class="ov big" style="font-size:44px">⏸ Pausa</div>`:""}</div>`;
+    else b=`<div class="small">Misión ${v.mi+1}/${v.mn} · Reto ${v.si}/${v.sn}${s.left!=null?` · ⏱ ${s.left}s`:""}</div>${bar(v)}${v.note?`<div class="note">${esc(v.note)}</div>`:""}${stageHTML(v,s)}`;pf=powersBar(v);
+    app.innerHTML=`<div id="pl">${hdr}<div class="pb">${b}</div>${pf?`<div class="pf">${pf}</div>`:""}${v.paused?`<div class="ov big" style="font-size:44px">⏸ Pausa</div>`:""}</div>`;
     app.querySelectorAll("[data-a]").forEach(e=>e.onclick=()=>act(e.dataset.a,e.dataset.i,e.dataset.k));
     bindHold(v);
   }
